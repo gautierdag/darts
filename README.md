@@ -1,3 +1,6 @@
+## Changes from original repo:
+  - Added pytorch 1.0 support for RNN search
+
 # Differentiable Architecture Search
 Code accompanying the paper
 > [DARTS: Differentiable Architecture Search](https://arxiv.org/abs/1806.09055)\

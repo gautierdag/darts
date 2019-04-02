@@ -1,5 +1,7 @@
 import argparse
-import os, sys, glob
+import os
+import sys
+import glob
 import time
 import math
 import numpy as np
@@ -23,7 +25,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--data", type=str, default="data/penn/", help="location of the data corpus"
 )
-parser.add_argument("--emsize", type=int, default=300, help="size of word embeddings")
+parser.add_argument("--emsize", type=int, default=300,
+                    help="size of word embeddings")
 parser.add_argument(
     "--nhid", type=int, default=300, help="number of hidden units per layer"
 )
@@ -33,8 +36,10 @@ parser.add_argument(
     default=300,
     help="number of hidden units for the last rnn layer",
 )
-parser.add_argument("--lr", type=float, default=20, help="initial learning rate")
-parser.add_argument("--clip", type=float, default=0.25, help="gradient clipping")
+parser.add_argument("--lr", type=float, default=20,
+                    help="initial learning rate")
+parser.add_argument("--clip", type=float, default=0.25,
+                    help="gradient clipping")
 parser.add_argument("--epochs", type=int, default=50, help="upper epoch limit")
 parser.add_argument(
     "--batch_size", type=int, default=256, metavar="N", help="batch size"
@@ -137,7 +142,8 @@ if args.small_batch_size < 0:
     args.small_batch_size = args.batch_size
 
 if not args.continue_train:
-    args.save = "search-{}-{}".format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+    args.save = "search-{}-{}".format(args.save,
+                                      time.strftime("%Y%m%d-%H%M%S"))
     create_exp_dir(args.save, scripts_to_save=glob.glob("*.py"))
 
 log_format = "%(asctime)s %(message)s"
@@ -194,11 +200,11 @@ logging.info(model.genotype())
 
 
 if torch.cuda.is_available():
-    if torch.cuda.device_count() > 1:
-        parallel_model = nn.DataParallel(model, dim=1)
-        parallel_model = parallel_model.to(device)
-    else:
-        parallel_model = model.to(device)
+    # if torch.cuda.device_count() > 1:
+    #     parallel_model = nn.DataParallel(model, dim=1)
+    #     parallel_model = parallel_model.to(device)
+    # else:
+    parallel_model = model.to(device)
 else:
     parallel_model = model
 
@@ -220,7 +226,8 @@ def evaluate(data_source, batch_size=10):
         targets = targets.view(-1)
 
         log_prob, hidden = parallel_model(data, hidden)
-        loss = nn.functional.nll_loss(log_prob.view(-1, log_prob.size(2)), targets).data
+        loss = nn.functional.nll_loss(
+            log_prob.view(-1, log_prob.size(2)), targets).data
 
         total_loss += loss * len(data)
 
@@ -276,7 +283,8 @@ def train():
             #     targets_valid[:, start:end].contiguous(),
             # )
             cur_data, cur_targets = (data, targets.contiguous())
-            cur_data_valid, cur_targets_valid = (data_valid, targets_valid.contiguous())
+            cur_data_valid, cur_targets_valid = (
+                data_valid, targets_valid.contiguous())
 
             # Starting each batch, we detach the hidden state from how it was previously produced.
             # If we didn't, the model would try backpropagating all the way to start of the dataset.

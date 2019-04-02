@@ -101,8 +101,8 @@ parser.add_argument(
     type=int,
     default=-1,
     help="the batch size for computation. batch_size should be divisible by small_batch_size.\
-                     In our implementation, we compute gradients with small_batch_size multiple times, and accumulate the gradients\
-                     until batch_size is reached. An update step is then performed.",
+          In our implementation, we compute gradients with small_batch_size multiple times, and accumulate the gradients\
+          until batch_size is reached. An update step is then performed.",
 )
 parser.add_argument(
     "--max_seq_len_delta", type=int, default=20, help="max sequence length"
@@ -194,12 +194,14 @@ logging.info(model.genotype())
 
 
 if torch.cuda.is_available():
-    if args.single_gpu:
-        parallel_model = model.to(device)
-    else:
+    if torch.cuda.device_count() > 1:
         parallel_model = nn.DataParallel(model, dim=1)
+        parallel_model = parallel_model.to(device)
+    else:
+        parallel_model = model.to(device)
 else:
     parallel_model = model
+
 architect = Architect(parallel_model, args)
 
 total_params = sum(x.data.nelement() for x in model.parameters())
